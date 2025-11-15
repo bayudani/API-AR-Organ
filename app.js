@@ -1,15 +1,32 @@
-import 'dotenv/config.js';
-import express from 'express';
-import logger from 'morgan';
-import organRouter from './routes/organRoutes.js';
-
+import "dotenv/config.js";
+import express from "express";
+import logger from "morgan";
+import organRouter from "./routes/organRoutes.js";
+import cors from "cors";
 
 const app = express();
 
-app.use(logger('dev'));
-app.use(express.json()); 
+app.use(logger("dev"));
+app.use(express.json());
+app.use(
+  cors({
+    origin: "*", // Untuk development, izinkan semua origin
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
-app.use('/api', organRouter);
+app.use(
+  cors({
+    origin: [
+      "https://fa49db4c-ca95-4702-a3ba-f7221585753e.lovableproject.com",
+      "http://localhost:8080",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+app.use("/api", organRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the AR Organ API!" });
@@ -20,7 +37,7 @@ app.use((req, res, next) => {
   res.status(404).json({
     message: "Endpoint not found",
     method: req.method,
-    url: req.originalUrl
+    url: req.originalUrl,
   });
 });
 
@@ -33,7 +50,7 @@ app.use((err, req, res, next) => {
   // Kirim respon error 500 sebagai JSON
   res.status(err.status || 500).json({
     message: "Terjadi error di server",
-    error: err.message
+    error: err.message,
   });
 });
 
