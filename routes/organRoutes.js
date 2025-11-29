@@ -11,7 +11,10 @@ import {
 const router = Router();
 
 // POST /api/organs
+
 router.post("/organs", createOrgan);
+// documentation
+
 
 // GET /api/organs
 router.get("/organs", getAllOrgans);

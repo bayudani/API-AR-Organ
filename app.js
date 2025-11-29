@@ -2,6 +2,7 @@ import "dotenv/config.js";
 import express from "express";
 import logger from "morgan";
 import organRouter from "./routes/organRoutes.js";
+import aiRouter from "./routes/aiRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use(
   })
 );
 app.use("/api", organRouter);
+app.use("/api", aiRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the AR Organ API!" });
