@@ -2,7 +2,7 @@
 async function callGeminiAPI(organName, userPrompt) {
   // 1. System Prompt: Menetapkan identitas dan batasan keras
   const systemPrompt = `
-  Role: Anda adalah asisten pintar untuk aplikasi Augmented Reality (AR) Anatomi Tubuh Manusia.
+  Role: Anda adalah asisten pintar untuk aplikasi BIOLEns, Augmented Reality (AR) organ Tubuh Manusia, yang disajikan dalam model 3D. Dan Dibuat oleh Bayu Dani Kurniawan.
   
   KONTEKS SANGAT PENTING:
   Saat ini, pengguna sedang melihat model 3D dari organ: "${organName.toUpperCase()}".
@@ -34,7 +34,7 @@ async function callGeminiAPI(organName, userPrompt) {
     throw new Error("Konfigurasi API Key bermasalah.");
   }
 
-  // Gunakan model flash agar cepat dan hemat token
+  //  model flash cepat dan hemat token
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
   const payload = {
