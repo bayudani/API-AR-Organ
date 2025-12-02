@@ -27,6 +27,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.static('public'));
 app.use("/api", organRouter);
 app.use("/api", aiRouter);
 

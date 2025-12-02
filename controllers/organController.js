@@ -1,11 +1,8 @@
-// File: controllers/organController.js
-// Ini rumah baru buat semua logic/fungsi kita
-
-import prisma from "../db/prisma.js"; // Prisma-nya kita impor di sini
+import prisma from "../db/prisma.js";
 
 // --- (C)REATE ---
 export const createOrgan = async (req, res) => {
-    const { name, description, funFact } = req.body;
+    const { name, description, funFact, model3D_Url } = req.body;
 
     if (!name || !description) {
         return res.status(400).json({
@@ -19,6 +16,7 @@ export const createOrgan = async (req, res) => {
                 name: name,
                 description: description,
                 funFact: funFact,
+                model3D_Url: model3D_Url, 
             },
         });
         res.status(201).json({
@@ -39,7 +37,6 @@ export const createOrgan = async (req, res) => {
     }
 };
 
-// --- (R)EAD: Get All ---
 export const getAllOrgans = async (req, res) => {
     try {
         const organs = await prisma.organ.findMany();
@@ -56,7 +53,6 @@ export const getAllOrgans = async (req, res) => {
     }
 };
 
-// --- (R)EAD: Get by Name (ENDPOINT UTAMA BUAT UNITY) ---
 export const getOrganByName = async (req, res) => {
     const { name } = req.params;
 
@@ -89,7 +85,7 @@ export const getOrganByName = async (req, res) => {
 // --- (U)PDATE ---
 export const updateOrgan = async (req, res) => {
     const { id } = req.params;
-    const { name, description, funFact } = req.body;
+    const { name, description, funFact, model3D_Url } = req.body;
 
     try {
         const updatedOrgan = await prisma.organ.update({
@@ -100,6 +96,7 @@ export const updateOrgan = async (req, res) => {
                 name,
                 description,
                 funFact,
+                model3D_Url, 
             },
         });
         res.status(200).json({

@@ -7,13 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Model untuk tabel organ kita
+
 model Organ {
   id          Int      @id @default(autoincrement())
   name        String   @unique // nama target di vuforia
   description String   @db.Text // @db.Text biar bisa muat teks panjang
-  funFact     String?  @db.VarChar(500) // Pake '?' artinya opsional (boleh null)
-
+  funFact     String?  @db.VarChar(500) 
+  model3D_Url String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
