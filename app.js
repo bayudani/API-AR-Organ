@@ -11,10 +11,10 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(
   cors({
-    // Masukkan URL Vercel lu (biasanya tanpa slash di belakang buat Origin header)
+    
     origin: "https://biolens-dashboard.vercel.app", 
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // Kalau lu kirim cookies/auth headers
+    credentials: true, 
   })
 );
 
