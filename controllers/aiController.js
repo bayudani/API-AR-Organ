@@ -79,9 +79,9 @@ async function callGeminiAPI(organName, userPrompt) {
   }
 }
 
-// ----------------------------------------------------
-// Controller Endpoint
-// ----------------------------------------------------
+  // ----------------------------------------------------
+  // Controller Endpoint
+  // ----------------------------------------------------
 
 export const getAIDetail = async (req, res) => {
   const { organName } = req.params;

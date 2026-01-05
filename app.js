@@ -11,22 +11,13 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(
   cors({
-    origin: "*", // Untuk development, izinkan semua origin
+    // Masukkan URL Vercel lu (biasanya tanpa slash di belakang buat Origin header)
+    origin: "https://biolens-dashboard.vercel.app", 
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    credentials: true, // Kalau lu kirim cookies/auth headers
   })
 );
 
-app.use(
-  cors({
-    origin: [
-      "https://fa49db4c-ca95-4702-a3ba-f7221585753e.lovableproject.com",
-      "http://localhost:8080",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
 app.use(express.static('public'));
 app.use("/api", organRouter);
 app.use("/api", aiRouter);
@@ -43,6 +34,7 @@ app.use((req, res, next) => {
     url: req.originalUrl,
   });
 });
+
 
 // 2. JSON 500 Error Handler (kalo ada error di server)
 // Ini akan nangkep error dari controller, dll.
