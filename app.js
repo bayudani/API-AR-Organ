@@ -13,7 +13,8 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(
   cors({
-    origin: ["https://biolens-dashboard.vercel.app", "http://localhost:5173"], 
+    origin: "https://biolens-dashboard.vercel.app", 
+    // origin: ["https://biolens-dashboard.vercel.app", "http://localhost:5173"], 
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, 
   })

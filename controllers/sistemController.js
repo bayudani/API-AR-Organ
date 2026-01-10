@@ -1,6 +1,6 @@
 import prisma from "../db/prisma.js";
 
-// --- (C)REATE System (dengan Upload Foto) ---
+// --- (C)REATE System ---
 export const createSystem = async (req, res) => {
   const { name, description, process } = req.body;
   
@@ -19,7 +19,6 @@ export const createSystem = async (req, res) => {
     });
     res.status(201).json({ message: "Sistem Organ berhasil dibuat", data: newSystem });
   } catch (error) {
-    // Handle error unik (misal nama sistem udah ada)
     if (error.code === "P2002") {
       return res.status(409).json({ message: "Nama sistem organ sudah ada" });
     }
@@ -31,9 +30,16 @@ export const createSystem = async (req, res) => {
 export const getAllSystems = async (req, res) => {
   try {
     const systems = await prisma.organSystem.findMany({
-      include: {
-        organs: true, // Biar pas fetch sistem, data organnya kebawa juga
-      },
+      select:{
+        id: true,
+        name: true,
+        organs:{
+          select:{
+            id: true,
+            name: true,
+          }
+        }
+      }
     });
     res.status(200).json({ data: systems });
   } catch (error) {
@@ -62,8 +68,17 @@ export const getSystemByName = async (req, res) => {
   const { name } = req.params;
   try {
     const system = await prisma.organSystem.findUnique({
-      where: { name: name }, // Cari berdasarkan kolom 'name' yang unique
-      include: { organs: true },
+      where: { name: name }, 
+      select:{
+        id: true,
+        name: true,
+        organs:{
+          select:{
+            id: true,
+            name: true,
+          }
+        }
+      }
     });
     
     if (!system) return res.status(404).json({ message: `Sistem '${name}' tidak ditemukan` });

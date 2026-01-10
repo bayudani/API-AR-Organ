@@ -56,7 +56,7 @@ export const createOrgan = async (req, res) => {
         // Error Generic
         res.status(500).json({ 
             message: "Terjadi error internal server", 
-            error: error.message, // Kasih pesan teknis biar tau kenapa
+            error: error.message, 
             code: error.code 
         });
     }
@@ -139,7 +139,7 @@ export const updateOrgan = async (req, res) => {
             return res.status(400).json({ message: "Gagal update: System ID tidak valid." });
         }
 
-        // Handle Value Too Long (P2000) - INI YANG DITAMBAHIN
+        // Handle Value Too Long (P2000) 
         if (error.code === "P2000") {
             return res.status(400).json({ 
                 message: "Gagal update: Data terlalu panjang. Cek apakah ada gambar yang masuk sebagai teks (base64) di deskripsi.",

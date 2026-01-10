@@ -10,7 +10,7 @@ datasource db {
 model OrganSystem {
   id          Int      @id @default(autoincrement())
   name        String   @unique // Contoh: "Sistem Pencernaan"
-  description String   @db.Text // Penjelasan umum sistem
+  description String   @db.LongText // Penjelasan umum sistem
   process     String   @db.Text // Penjelasan proses urutan
   imageUrl    String?  // Foto ilustrasi sistem (URL)
   
