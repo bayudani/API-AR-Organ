@@ -33,6 +33,8 @@ export const getAllSystems = async (req, res) => {
       select:{
         id: true,
         name: true,
+        description: true,
+        process: true,
         organs:{
           select:{
             id: true,
