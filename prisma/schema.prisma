@@ -7,13 +7,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model OrganSystem {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // Contoh: "Sistem Pencernaan"
+  description String   @db.Text // Penjelasan umum sistem
+  process     String   @db.Text // Penjelasan proses urutan
+  imageUrl    String?  // Foto ilustrasi sistem (URL)
+  
+  // Relasi: Satu sistem punya banyak organ
+  organs      Organ[] 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
 model Organ {
   id          Int      @id @default(autoincrement())
-  name        String   @unique // nama target di vuforia
-  description String   @db.Text // @db.Text biar bisa muat teks panjang
-  funFact     String?  @db.VarChar(500) 
+  name        String   @unique 
+  description String   @db.LongText 
+  funFact     String?  @db.VarChar(500)
+  
+  imageUrl    String?  // URL foto organ
   model3D_Url String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  // Foreign Key ke Sistem Organ
+  systemId    Int?     // Bisa null dulu kalo belum dimasukin ke sistem
+  system      OrganSystem? @relation(fields: [systemId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -1,31 +1,31 @@
-import { Router } from "express";
-
-import {
-    createOrgan,
-    getAllOrgans,
-    getOrganByName,
-    updateOrgan,
-    deleteOrgan,
-} from "../controllers/organController.js";
+import { Router } from 'express';
+import upload from '../middleware/uploadsMiddleware.js'; 
+import { 
+    createOrgan, 
+    getAllOrgans, 
+    getOrganByName, 
+    updateOrgan, 
+    deleteOrgan 
+} from '../controllers/organController.js';
 
 const router = Router();
 
-// POST /api/organs
+// --- ROUTE ORGAN (Anak) ---
+// Base URL nanti: /api/organs
 
-router.post("/organs", createOrgan);
-// documentation
+// 1. Create Organ (Pake upload gambar 'image')
+router.post('/organs', upload.single('image'), createOrgan);
 
+// 2. Get All Organs
+router.get('/organs', getAllOrgans);
 
-// GET /api/organs
-router.get("/organs", getAllOrgans);
+// 3. Get Organ by Name (Utama buat Unity AR Camera)
+router.get('/organs/name/:name', getOrganByName);
 
-// GET /api/organs/name/:name
-router.get("/organs/name/:name", getOrganByName);
+// 4. Update Organ (Pake upload gambar 'image')
+router.put('/organs/:id', upload.single('image'), updateOrgan);
 
-// PUT /api/organs/:id
-router.put("/organs/:id", updateOrgan);
-
-// DELETE /api/organs/:id
-router.delete("/organs/:id", deleteOrgan);
+// 5. Delete Organ
+router.delete('/organs/:id', deleteOrgan);
 
 export default router;
