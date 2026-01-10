@@ -72,6 +72,9 @@ export const getSystemByName = async (req, res) => {
       select:{
         id: true,
         name: true,
+        description: true,
+        process: true,
+        imageUrl: true,
         organs:{
           select:{
             id: true,
