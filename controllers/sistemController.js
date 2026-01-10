@@ -58,6 +58,22 @@ export const getSystemDetail = async (req, res) => {
   }
 };
 
+export const getSystemByName = async (req, res) => {
+  const { name } = req.params;
+  try {
+    const system = await prisma.organSystem.findUnique({
+      where: { name: name }, // Cari berdasarkan kolom 'name' yang unique
+      include: { organs: true },
+    });
+    
+    if (!system) return res.status(404).json({ message: `Sistem '${name}' tidak ditemukan` });
+    
+    res.status(200).json({ data: system });
+  } catch (error) {
+    res.status(500).json({ message: "Error server", error: error.message });
+  }
+};
+
 // --- (U)PDATE System ---
 export const updateSystem = async (req, res) => {
   const { id } = req.params;

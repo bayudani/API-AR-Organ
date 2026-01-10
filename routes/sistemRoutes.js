@@ -5,7 +5,8 @@ import {
     getAllSystems, 
     getSystemDetail, 
     updateSystem, 
-    deleteSystem 
+    deleteSystem,
+    getSystemByName
 } from '../controllers/sistemController.js';
 
 const router = Router();
@@ -21,6 +22,9 @@ router.get('/systems', getAllSystems);
 
 // 3. Get Detail System
 router.get('/systems/:id', getSystemDetail);
+
+// Get System by Name
+router.get('/systems/name/:name', getSystemByName);
 
 // 4. Update System
 router.put('/systems/:id', upload.single('image'), updateSystem);
