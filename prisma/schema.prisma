@@ -37,3 +37,67 @@ model Organ {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+// --- USER (SISWA) ---
+model User {
+  id        Int      @id @default(autoincrement())
+  deviceId  String    
+  fullName  String
+  grade     String
+  points    Int      @default(0)
+  history   UserQuizHistory[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // KOMBINASI UNIK:
+  // Di satu HP (deviceId), tidak boleh ada 'fullName' yang sama persis double.
+  // Jadi kalau Budi login lagi, dia bakal ke-detect user lama, bukan bikin baru.
+  @@unique([deviceId, fullName])
+}
+
+model Quiz {
+  id            Int          @id @default(autoincrement())
+  title         String       // Misal: "Tantangan Biologi Harian"
+  description   String?      // Misal: "Soal acak buat asah otak!"
+  thumbnailUrl  String?      // (Opsional) Biar di menu Unity ada gambarnya
+
+  // HAPUS systemId & system karena kuisnya general
+  
+  questions     Question[]
+  history       UserQuizHistory[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Question {
+  id           Int          @id @default(autoincrement())
+  quizId       Int
+  quiz         Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  questionText String       @db.Text 
+  imageUrl     String?      
+  options      QuizOption[] 
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model QuizOption {
+  id          Int      @id @default(autoincrement())
+  questionId  Int
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionText  String   
+  isCorrect   Boolean  @default(false) 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserQuizHistory {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  quizId    Int
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  score     Int      
+  createdAt DateTime @default(now())
+}

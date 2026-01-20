@@ -49,13 +49,13 @@ export const getAllSystems = async (req, res) => {
   }
 };
 
-// --- (R)EAD: Get Detail System (buat menu penjelasan di Unity) ---
+// --- (R)EAD: Get Detail System  ---
 export const getSystemDetail = async (req, res) => {
   const { id } = req.params;
   try {
     const system = await prisma.organSystem.findUnique({
       where: { id: parseInt(id) },
-      include: { organs: true }, // Ambil anak-anak organnya juga
+      include: { organs: true },
     });
     
     if (!system) return res.status(404).json({ message: "Sistem tidak ditemukan" });
@@ -76,7 +76,7 @@ export const getSystemByName = async (req, res) => {
         name: true,
         description: true,
         process: true,
-        imageUrl: true,
+        // imageUrl: true,
         organs:{
           select:{
             id: true,

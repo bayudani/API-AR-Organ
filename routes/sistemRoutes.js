@@ -12,7 +12,6 @@ import {
 const router = Router();
 
 // --- ROUTE SISTEM ORGAN (Induk) ---
-// Base URL nanti: /api/systems
 
 // 1. Create System (Pake upload gambar 'image')
 router.post('/systems', upload.single('image'), createSystem); 

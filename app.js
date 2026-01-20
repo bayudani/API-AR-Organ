@@ -5,6 +5,9 @@ import organRouter from "./routes/organRoutes.js";
 import aiRouter from "./routes/aiRoutes.js";
 import sistemRoutes from "./routes/sistemRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import quizRoutes from "./routes/quizRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import cors from "cors";
 
 const app = express();
@@ -13,8 +16,8 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://biolens-dashboard.vercel.app", 
-    // origin: ["https://biolens-dashboard.vercel.app", "http://localhost:5173"], 
+    // origin: "https://biolens-dashboard.vercel.app", 
+    origin: ["https://biolens-dashboard.vercel.app", "http://localhost:5173"], 
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, 
   })
@@ -25,6 +28,9 @@ app.use("/api", organRouter);
 app.use("/api", aiRouter);
 app.use("/api", sistemRoutes);
 app.use("/api", uploadRoutes);
+app.use("/api/quizzes", quizRoutes);
+app.use("/api", authRoutes);
+app.use("/api", userRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the AR Organ API!" });

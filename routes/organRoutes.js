@@ -11,7 +11,6 @@ import {
 const router = Router();
 
 // --- ROUTE ORGAN (Anak) ---
-// Base URL nanti: /api/organs
 
 // 1. Create Organ (Pake upload gambar 'image')
 router.post('/organs', upload.single('image'), createOrgan);
