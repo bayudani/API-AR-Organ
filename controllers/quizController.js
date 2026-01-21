@@ -182,77 +182,79 @@ export const deleteQuiz = async (req, res) => {
 // --- (POST) SUBMIT & CALCULATE SCORE ---
 export const submitQuiz = async (req, res) => {
     const { quizId } = req.params;
-    const { userId, answers } = req.body; // answers: [{ questionId, optionId }]
+    const { userId, answers } = req.body;
 
     if (!userId || !answers) {
         return res.status(400).json({ message: "User ID dan Jawaban wajib ada" });
     }
 
     try {
-        // 1. Ambil Kunci Jawaban
+        // 1. CEK HISTORY DULU (SATPAM) 👮‍♂️✋
+        const existingHistory = await prisma.userQuizHistory.findFirst({
+            where: {
+                userId: parseInt(userId),
+                quizId: parseInt(quizId)
+            }
+        });
+
+        // Kalau udah pernah ngerjain, langsung tolak!
+        if (existingHistory) {
+            return res.status(403).json({ 
+                message: "Eits, gabisa curang! Kamu sudah pernah mengerjakan kuis ini.",
+                detail: "Hubungi admin/guru jika ingin remedial (data harus dihapus dulu)."
+            });
+        }
+
+        // 2. Ambil Kunci Jawaban
         const quizData = await prisma.quiz.findUnique({
             where: { id: parseInt(quizId) },
-            include: {
-                questions: { include: { options: true } }
-            }
+            include: { questions: { include: { options: true } } }
         });
 
         if (!quizData) return res.status(404).json({ message: "Kuis tidak ditemukan" });
 
-        // 2. Hitung Skor
+        // 3. Hitung Skor
         let correctCount = 0;
-        const totalQuestions = quizData.questions.length;
         const pointsPerQuestion = 10; 
 
         answers.forEach(userAns => {
             const question = quizData.questions.find(q => q.id === userAns.questionId);
             if (question) {
                 const selectedOption = question.options.find(opt => opt.id === userAns.optionId);
-                if (selectedOption && selectedOption.isCorrect) {
-                    correctCount++;
-                }
+                if (selectedOption && selectedOption.isCorrect) correctCount++;
             }
         });
 
         const scoreEarned = correctCount * pointsPerQuestion;
 
-        // 3. Update Poin & History User
-        const [updatedUser, history] = await prisma.$transaction([
-            prisma.user.update({
-                where: { id: parseInt(userId) },
-                data: { points: { increment: scoreEarned } }
-            }),
+        // 4. Simpan Nilai & Update Poin User (Transaksi)
+        await prisma.$transaction([
+            // Simpan history biar ketahuan udah pernah main
             prisma.userQuizHistory.create({
                 data: {
                     userId: parseInt(userId),
                     quizId: parseInt(quizId),
                     score: scoreEarned
                 }
+            }),
+            // Tambah poin ke user
+            prisma.user.update({
+                where: { id: parseInt(userId) },
+                data: { points: { increment: scoreEarned } }
             })
         ]);
 
         res.status(200).json({
-            message: "Kuis selesai!",
+            message: "Kuis selesai! Nilai berhasil disimpan.",
             result: {
                 correct: correctCount,
-                total: totalQuestions,
-                scoreEarned: scoreEarned,
-                currentTotalPoints: updatedUser.points
+                total: quizData.questions.length,
+                scoreEarned: scoreEarned
             }
         });
 
     } catch (error) {
         console.error("❌ Error Submit Quiz:", error);
-
-        // --- TAMBAHAN ERROR HANDLING ---
-        // Kalau User ID gak ketemu di database (P2025)
-        if (error.code === 'P2025') {
-            return res.status(404).json({ 
-                message: "Gagal: User ID tidak ditemukan. Pastikan sudah login/start game di Unity.",
-                detail: "Mungkin database habis di-reset. Coba login ulang."
-            });
-        }
-
         res.status(500).json({ message: "Gagal submit kuis", error: error.message });
     }
 };
