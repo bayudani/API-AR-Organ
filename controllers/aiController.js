@@ -1,121 +1,461 @@
+// ============================================================
+// Gemini AI Controller - BIOLEns
+// ============================================================
+
+// ------------------------------------------------------------
 // Fungsi untuk memanggil Gemini API
+// ------------------------------------------------------------
 async function callGeminiAPI(organName, userPrompt) {
-  // 1. System Prompt: Menetapkan identitas dan batasan keras
+
+  // ==========================================================
+  // 1. SYSTEM PROMPT
+  // ==========================================================
   const systemPrompt = `
-  Role: Anda adalah asisten pintar untuk aplikasi BIOLEns, Augmented Reality (AR) organ Tubuh Manusia, yang disajikan dalam model 3D. Dan Dibuat oleh Bayu Dani Kurniawan.
-  
-  KONTEKS SANGAT PENTING:
-  Saat ini, pengguna sedang melihat model 3D dari organ: "${organName.toUpperCase()}".
-  CATATAN:
-  3D ditampilkan di menu lain(di menu "lihat 3D/AR), dan TIDAK di chat ini, jadi user harus masuk ke menu 3D untuk melihat modelnya.
+Anda adalah asisten pintar untuk aplikasi BIOLEns.
 
-  ATURAN UTAMA (Wajib Patuh):
-  1. FOKUS MUTLAK pada "${organName}". Semua jawaban Anda harus tentang organ ini.
-  2. JIKA pengguna bertanya tentang organ LAIN (misalnya user tanya "Jantung fungsinya apa?" padahal konteks adalah "PARU-PARU"):
-      - TOLAK dengan sopan. Dan ingatkan pengguna bahwa fokusnya adalah "${organName}". Kemudian jika pengguna tetap memaksa silahkan arahkan ke organ yang ditanyakan.
-      - Contoh respon: "Eits, saat ini kita sedang fokus melihat ${organName}, bukan organ lain. Yuk tanya seputar ${organName} aja!"
-  3. JIKA pengguna bertanya hal di luar topik biologi/organ (misal: resep masakan, politik, curhat):
-      - TOLAK dengan sopan. Ingatkan pengguna bahwa anda adalah asisten pintar untuk BioLens,dan tidak dirancang untuk menjawab pertanyaan di luar topik".
-      - Arahkan kembali ke topik "${organName}".
-  4. JAWABLAH pertanyaan spesifik pengguna. Jangan memberikan ringkasan umum jika pengguna bertanya hal spesifik (misal: "Kenapa warnanya merah?", jawab alasan warnanya, jangan jelaskan fungsi umum).
-  5. Gaya bahasa: Singkat, padat, edukatif, tapi mudah dimengerti (seperti tour guide museum). gunakan gaya bahasa yang ramah dan Gen-Z.
-  `;
+BIOLEns adalah aplikasi Augmented Reality (AR) untuk pembelajaran
+anatomi tubuh manusia yang menggunakan model 3D.
 
-  // 2. User Prompt: Input pertanyaan user
+Aplikasi ini dibuat oleh Bayu Dani Kurniawan.
+
+============================================================
+KONTEKS SAAT INI
+============================================================
+
+Pengguna sedang mempelajari organ:
+
+"${organName.toUpperCase()}"
+
+Model 3D organ ditampilkan pada menu lain di aplikasi,
+yaitu menu "Lihat 3D/AR".
+
+Model 3D TIDAK ditampilkan secara langsung di chat ini.
+
+============================================================
+ATURAN UTAMA
+============================================================
+
+1. FOKUS PADA ORGAN:
+"${organName}"
+
+Jawaban harus berhubungan dengan organ tersebut.
+
+2. JIKA PENGGUNA BERTANYA TENTANG ORGAN LAIN:
+
+Contoh:
+
+Pengguna:
+"Apa fungsi jantung?"
+
+Padahal organ yang sedang dipelajari:
+"paru-paru"
+
+Maka jangan langsung menjelaskan jantung.
+
+Jawab dengan sopan bahwa konteks saat ini sedang fokus
+pada "${organName}".
+
+Contoh:
+
+"Eits, saat ini kita sedang fokus mempelajari ${organName}.
+Yuk tanya seputar ${organName} dulu!"
+
+Jika pengguna tetap ingin mengetahui organ lain,
+arahkan pengguna untuk memilih organ tersebut pada menu
+yang sesuai di aplikasi.
+
+3. JIKA PERTANYAAN DI LUAR TOPIK BIOLOGI:
+
+Contoh:
+- resep makanan
+- politik
+- berita
+- game
+- coding
+- masalah pribadi
+- hiburan
+- pertanyaan umum yang tidak berkaitan dengan biologi
+
+Tolak dengan sopan.
+
+Contoh:
+
+"Maaf, aku dirancang khusus sebagai asisten pembelajaran
+BIOLEns untuk membantu memahami organ tubuh manusia.
+Yuk kita bahas ${organName} saja!"
+
+4. JAWAB PERTANYAAN SECARA SPESIFIK.
+
+Jika pengguna bertanya:
+
+"Kenapa ${organName} berwarna merah?"
+
+Jawab alasan warna merahnya.
+
+Jangan memberikan penjelasan panjang mengenai seluruh fungsi
+dan struktur organ kecuali memang diperlukan.
+
+5. JIKA PENGGUNA MEMINTA FUNGSI:
+
+Jelaskan fungsi utama organ secara singkat dan mudah dipahami.
+
+6. JIKA PENGGUNA MEMINTA BAGIAN/STRUKTUR:
+
+Jelaskan bagian yang ditanyakan dan hubungannya dengan organ.
+
+7. JIKA PENGGUNA MENANYAKAN PENYAKIT:
+
+Berikan penjelasan edukatif secara umum.
+
+Jangan memberikan diagnosis kepada pengguna.
+
+8. GAYA BAHASA:
+
+- Bahasa Indonesia
+- singkat
+- padat
+- edukatif
+- mudah dipahami siswa SMA
+- ramah
+- sedikit Gen-Z
+- seperti tour guide museum
+- jangan terlalu kaku
+- jangan menggunakan istilah medis yang terlalu sulit tanpa penjelasan
+
+9. JANGAN MENGARANG INFORMASI.
+
+Jika informasi yang ditanyakan tidak cukup jelas atau tidak
+berhubungan dengan organ "${organName}", katakan dengan jujur.
+
+10. JANGAN MEMBAHAS IMPLEMENTASI TEKNIS APLIKASI.
+
+Anda adalah asisten pembelajaran biologi, bukan asisten coding.
+`;
+
+
+  // ==========================================================
+  // 2. USER PROMPT
+  // ==========================================================
   const chatPrompt = `
-  Pertanyaan/Chat Pengguna: "${userPrompt}"
-  
-  Tugas Anda:
-  Jawab pertanyaan di atas berdasarkan konteks organ "${organName}". 
-  Ingat aturan main: Jangan bahas organ lain selain "${organName}".
-  `;
+Pertanyaan pengguna:
 
-  const apiKey = process.env.GEMINI_API_KEY || "";
+"${userPrompt}"
+
+Tugas:
+
+Jawab pertanyaan pengguna berdasarkan konteks organ
+"${organName}".
+
+Pastikan jawaban mengikuti seluruh aturan yang telah diberikan.
+`;
+
+
+  // ==========================================================
+  // 3. AMBIL API KEY
+  // ==========================================================
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    console.error("GEMINI_API_KEY tidak ditemukan di .env");
-    throw new Error("Konfigurasi API Key bermasalah.");
+    console.error(
+      "❌ GEMINI_API_KEY tidak ditemukan pada environment variable."
+    );
+
+    throw new Error(
+      "GEMINI_API_KEY belum dikonfigurasi pada server."
+    );
   }
 
-  //  model flash cepat dan hemat token
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
+  // ==========================================================
+  // 4. GEMINI MODEL
+  // ==========================================================
+  const model = "gemini-3.5-flash";
+
+
+  // ==========================================================
+  // 5. GEMINI API URL
+  // ==========================================================
+  const apiUrl =
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+
+  console.log("========================================");
+  console.log("🤖 Gemini Request");
+  console.log("Model:", model);
+  console.log("Organ:", organName);
+  console.log("Prompt:", userPrompt);
+  console.log("API Key tersedia:", !!apiKey);
+  console.log("========================================");
+
+
+  // ==========================================================
+  // 6. REQUEST PAYLOAD
+  // ==========================================================
   const payload = {
     contents: [
       {
         role: "user",
-        parts: [{ text: systemPrompt + "\n\n" + chatPrompt }]
+        parts: [
+          {
+            text:
+              `${systemPrompt}\n\n${chatPrompt}`
+          }
+        ]
       }
     ]
   };
 
+
+  // ==========================================================
+  // 7. CALL GEMINI API
+  // ==========================================================
   try {
+
     const response = await fetch(apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": apiKey
+      },
+
       body: JSON.stringify(payload)
     });
 
+
+    // ========================================================
+    // 8. BACA RESPONSE
+    // ========================================================
+    const responseText = await response.text();
+
+
+    console.log("Gemini HTTP Status:", response.status);
+
+
+    // ========================================================
+    // 9. JIKA GEMINI ERROR
+    // ========================================================
     if (!response.ok) {
-      const err = await response.json();
-      console.log("Gemini error:", err);
-      throw new Error("Gagal memanggil AI");
+
+      console.error("========================================");
+      console.error("❌ GEMINI API ERROR");
+      console.error("HTTP Status:", response.status);
+      console.error("Response:", responseText);
+      console.error("========================================");
+
+
+      let errorMessage = responseText;
+
+      try {
+
+        const errorJson = JSON.parse(responseText);
+
+        errorMessage =
+          errorJson?.error?.message ||
+          responseText;
+
+      } catch (parseError) {
+
+        // Response bukan JSON
+        errorMessage = responseText;
+      }
+
+
+      throw new Error(
+        `Gemini API Error ${response.status}: ${errorMessage}`
+      );
     }
 
-    const result = await response.json();
 
-    if (
-      result.candidates &&
-      result.candidates[0].content &&
-      result.candidates[0].content.parts[0].text
-    ) {
-      return result.candidates[0].content.parts[0].text.trim();
-    } else {
-      throw new Error("Format respon Gemini tidak seperti yang diharapkan");
+    // ========================================================
+    // 10. PARSE JSON RESPONSE
+    // ========================================================
+    let result;
+
+    try {
+
+      result = JSON.parse(responseText);
+
+    } catch (parseError) {
+
+      console.error(
+        "❌ Response Gemini bukan JSON:",
+        responseText
+      );
+
+      throw new Error(
+        "Response dari Gemini tidak valid."
+      );
     }
-  } catch (err) {
-    console.error("Error AI:", err);
-    throw err; // Re-throw agar ditangkap di controller
+
+
+    // ========================================================
+    // 11. AMBIL TEXT RESPONSE
+    // ========================================================
+    const aiText =
+      result?.candidates?.[0]?.content?.parts
+        ?.map(part => part.text || "")
+        ?.join("")
+        ?.trim();
+
+
+    // ========================================================
+    // 12. VALIDASI RESPONSE
+    // ========================================================
+    if (!aiText) {
+
+      console.error(
+        "❌ Gemini tidak mengembalikan text."
+      );
+
+      console.error(
+        "Full Gemini Response:",
+        JSON.stringify(result, null, 2)
+      );
+
+      throw new Error(
+        "Gemini tidak mengembalikan jawaban."
+      );
+    }
+
+
+    // ========================================================
+    // 13. SUCCESS
+    // ========================================================
+    console.log("========================================");
+    console.log("✅ GEMINI SUCCESS");
+    console.log("Response:", aiText);
+    console.log("========================================");
+
+
+    return aiText;
+
+
+  } catch (error) {
+
+    console.error("========================================");
+    console.error("❌ ERROR CALLING GEMINI");
+    console.error("Message:", error.message);
+    console.error("========================================");
+
+    throw error;
   }
 }
 
-  // ----------------------------------------------------
-  // Controller Endpoint
-  // ----------------------------------------------------
+
+
+// ============================================================
+// CONTROLLER ENDPOINT
+// ============================================================
 
 export const getAIDetail = async (req, res) => {
+
+  // ----------------------------------------------------------
+  // Ambil parameter
+  // ----------------------------------------------------------
   const { organName } = req.params;
-  const { prompt } = req.body; // user chat prompt
+  const { prompt } = req.body;
 
+
+  // ----------------------------------------------------------
+  // Validasi organ
+  // ----------------------------------------------------------
   if (!organName) {
-    return res.status(400).json({ message: "Nama organ wajib dikirim" });
+
+    return res.status(400).json({
+      status: "error",
+      message: "Nama organ wajib dikirim."
+    });
   }
 
-  if (!prompt) {
-    return res.status(400).json({ message: "Prompt user wajib dikirim" });
+
+  // ----------------------------------------------------------
+  // Validasi prompt
+  // ----------------------------------------------------------
+  if (!prompt || !prompt.trim()) {
+
+    return res.status(400).json({
+      status: "error",
+      message: "Prompt user wajib dikirim."
+    });
   }
 
 
+  // ----------------------------------------------------------
+  // Bersihkan nama organ
+  // ----------------------------------------------------------
+  const cleanOrganName =
+    organName.trim().toLowerCase();
 
-  const cleanOrganName = organName.toLowerCase();
 
+  // ----------------------------------------------------------
+  // Bersihkan prompt
+  // ----------------------------------------------------------
+  const cleanPrompt =
+    prompt.trim();
+
+
+  console.log("========================================");
+  console.log("📥 AI REQUEST");
+  console.log("Organ:", cleanOrganName);
+  console.log("Prompt:", cleanPrompt);
+  console.log("========================================");
 
 
   try {
-    // Panggil fungsi AI dengan prompt yang sudah diperbaiki
-    const aiResponse = await callGeminiAPI(cleanOrganName, prompt);
 
-    res.status(200).json({
+    // --------------------------------------------------------
+    // Panggil Gemini
+    // --------------------------------------------------------
+    const aiResponse =
+      await callGeminiAPI(
+        cleanOrganName,
+        cleanPrompt
+      );
+
+
+    // --------------------------------------------------------
+    // Response berhasil
+    // --------------------------------------------------------
+    return res.status(200).json({
+
       status: "success",
+
       organ: cleanOrganName,
-      user_query: prompt,
+
+      user_query: cleanPrompt,
+
       ai_response: aiResponse
+
     });
 
-  } catch (err) {
-    res.status(500).json({
-      message: "Terjadi error ketika memproses permintaan AI",
-      error: err.message
+
+  } catch (error) {
+
+    console.error("========================================");
+    console.error("❌ CONTROLLER AI ERROR");
+    console.error("Error:", error.message);
+    console.error("========================================");
+
+
+    // --------------------------------------------------------
+    // Bedakan error API
+    // --------------------------------------------------------
+    const errorMessage =
+      error?.message ||
+      "Terjadi kesalahan saat memproses AI.";
+
+
+    return res.status(500).json({
+
+      status: "error",
+
+      message:
+        "Terjadi error ketika memproses permintaan AI.",
+
+      error:
+        errorMessage
+
     });
   }
 };
